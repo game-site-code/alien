@@ -1,0 +1,86 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Alien Invasion</title>
+  <meta name="viewport" content="width=device-width, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0"/>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: black;
+    }
+    #container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #game {
+      position: absolute;
+      bottom: 0;             /* anchor bottom */
+      left: 50%;             /* horizontally center */
+      transform-origin: bottom center;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <canvas id="game" width="320" height="480"></canvas>
+  </div>
+
+  <script src="engine.js"></script>
+  <script src="game.js"></script>
+  <script>
+    const canvas = document.getElementById("game");
+    const container = document.getElementById("container");
+    const ASPECT = canvas.width / canvas.height;
+
+    function resizeCanvas() {
+      const cw = container.clientWidth;
+      const ch = container.clientHeight;
+
+      // Scale based on height first
+      let scale = ch / canvas.height;
+
+      // If width overflows, scale down
+      if (canvas.width * scale > cw) {
+        scale = cw / canvas.width;
+      }
+
+      // Apply transform to scale and center
+      canvas.style.transform = `translateX(-50%) scale(${scale})`;
+
+      // Update game engine's width/height so rendering works
+      Game.width = canvas.width;
+      Game.height = canvas.height;
+      if (Game.ctx) {
+        Game.ctx.canvas.width = canvas.width;
+        Game.ctx.canvas.height = canvas.height;
+      }
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+
+    window.addEventListener("load", () => {
+      resizeCanvas();
+      Game.initialize("game", sprites, startGame);
+    });
+  </script>
+</body>
+<script>
+// 🚫 Block access if localStorage key is set to "no"
+if (localStorage.getItem("access") === "no") {
+    document.body.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:#111;color:white;font-family:sans-serif;">
+            <h1>Access Denied</h1>
+            <p>You are not allowed to view this page.</p>
+        </div>
+    `;
+    throw new Error("Blocked due to localStorage setting.");
+}
+</script>
+</html>
