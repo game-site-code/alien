@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+﻿<!DOCTYPE HTML>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -70,9 +70,77 @@
       Game.initialize("game", sprites, startGame);
     });
   </script>
+<!-- oneTimeAuth access guard injected -->
+<script>
+(function () {
+  const MIN_SECURITY_LEVEL = 2;
+  const AUTH_STORAGE_KEY = "oneTimeAuth";
+  const AUTH_PAGE_URL = "https://sites.google.com/view/wrpsauth/home";
+
+  const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+  if (!raw) {
+    deny("Authentication required.");
+    return;
+  }
+
+  let auth;
+  try {
+    auth = JSON.parse(raw);
+  } catch {
+    deny("Authentication data corrupted.");
+    return;
+  }
+
+  if (!auth.level || Number(auth.level) < MIN_SECURITY_LEVEL) {
+    deny("Insufficient security level.");
+    return;
+  }
+
+  function deny(reason) {
+    document.documentElement.innerHTML = 
+      <head>
+        <title>Access Restricted</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+          body {
+            margin:0;
+            background:#0b0b0b;
+            color:#fff;
+            font-family:Arial,sans-serif;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            text-align:center;
+          }
+          .box {
+            background:#141414;
+            padding:30px;
+            border-radius:8px;
+            max-width:400px;
+          }
+          a {
+            color:#0400FF;
+            font-weight:bold;
+            text-decoration:none;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="box">
+          <h2>Access Denied</h2>
+          <p>\</p>
+          <p><a href="\">Go to Authenticator</a></p>
+        </div>
+      </body>
+    ;
+    throw new Error("Access blocked");
+  }
+})();
+</script>
 </body>
 <script>
-// 🚫 Block access if localStorage key is set to "no"
+// ðŸš« Block access if localStorage key is set to "no"
 if (localStorage.getItem("access") === "no") {
     document.body.innerHTML = `
         <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:#111;color:white;font-family:sans-serif;">
